@@ -76,6 +76,9 @@ let g:mapleader = ","
 " fast saving
 nmap <leader>w :w!<cr>
 
+" remove trailing whitespaces on save
+autocmd BufRead,BufWritePre * if ! &bin | silent! %s/\s\+$// | endif
+
 " search from current directory upwards for ctags file
 set tags+=tags;/
 
@@ -255,7 +258,8 @@ autocmd FileType python setlocal sw=2 sts=2 noexpandtab
 autocmd FileType haskell call QuickFixHaskell()
 " When using ,b on normal mode, it will compile the
 " project
-nmap <LEADER>b :<C-u>make<CR>
+nmap <LEADER>b :<C-u>make -j<CR>
+nmap <LEADER>B :<C-u>make clean && make -j<CR>
 
 " Close the QuickFix window just with the q
 au FileType qf nnoremap <buffer> q :<C-u>cclose<CR>
