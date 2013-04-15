@@ -18,6 +18,8 @@ set cpo&vim
 
 " the directories where to search for vim scripts and help tags
 set runtimepath=~/.vim,/usr/share/vim/vimfiles,/usr/share/vim/vim73,/usr/share/vim/vimfiles/after
+" handwritten stuff is synchronized on git
+set runtimepath+=~/dotfiles/vim
 " add Vundle plugin manager to rtp
 filetype off
 set runtimepath+=~/.vim/bundle/vundle
@@ -33,10 +35,12 @@ Bundle 'gmarik/vundle'
 " github scripts
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-git'
+Bundle 'tpope/vim-repeat'
 Bundle 'tpope/vim-unimpaired'
 Bundle 'kien/ctrlp.vim'
 " Bundle 'Lokaltog/vim-powerline'
 Bundle 'Raimondi/delimitMate'
+Bundle 'Raimondi/YAIFA'
 Bundle 'sethwoodworth/vim-cute-python'
 Bundle 'Twinside/vim-haskellConceal'
 Bundle 'MarcWeber/vim-addon-local-vimrc'
@@ -45,8 +49,15 @@ Bundle 'Shougo/vimproc'
 Bundle 'eagletmt/ghcmod-vim'
 Bundle 'mileszs/ack.vim'
 Bundle 'godlygeek/tabular'
-Bundle 'Valloric/YouCompleteMe'
-" Bundle 'scrooloose/syntastic'
+Bundle 'Chiel92/vim-autoformat'
+Bundle 'sickill/vim-pasta'
+Bundle 'chrisbra/SudoEdit.vim'
+if v:version > 703 || (v:version == 703 && has('patch584'))
+  Bundle 'Valloric/YouCompleteMe'
+  let g:ycm_confirm_extra_conf = 0
+endif
+Bundle 'scrooloose/syntastic'
+Bundle 'pydave/AsyncCommand'
 
 " vim.org/scripts scripts
 Bundle 'autoload_cscope.vim'
@@ -83,7 +94,7 @@ autocmd BufRead,BufWritePre * if ! &bin | silent! %s/\s\+$// | endif
 set tags+=tags;/
 
 " ignore the following file endings completely
-set wildignore=*.swp,*.o,*.pyc,*.info,*.aux,*.dvi,*.bbl,*.blg
+set wildignore=*.swp,*.o,*.oo,*.pyc,*.info,*.aux,*.dvi,*.bbl,*.blg
 set wildignore+=*.brf,*.cb,*.ind,*.idx,*.ilg,*.inx,*.out,*.toc
 set wildignore+=*/tmp/*,*.so,*.a,*.la,*.zip,*.bz2,*.gz,*.tar
 
@@ -97,7 +108,7 @@ set suffixes=.bak,~,.log,.h,.P
 syntax enable
 
 " set colors and font according to preferences
-colorscheme desert
+colorscheme desert_mod
 " set guifont=Anonymous\ Pro\ for\ Powerline\ 11
 set guifont=Anonymous\ Pro\ 11
 
@@ -174,6 +185,14 @@ noremap  l
 "noremap <C-[> : cs find s <C-R>=expand("<cword>")<CR><CR>
 noremap <leader>h : help <C-R>=expand("<cword>")<CR><CR><C-W>p
 
+" delete without yanking
+"nnoremap <leader>d "_d
+"vnoremap <leader>d "_d
+
+" replace currently selected text with default register
+" without yanking it
+vnoremap <leader>p "_dP
+
 noremap <C-Right> l
 noremap <C-Left> h
 noremap <C-Up> k
@@ -216,7 +235,7 @@ inoremap kj <ESC>
 
 
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn$|\.BoostBuild$',
   \ 'file': '\.exe$\|\.so$\|\.dll$\|\.P$',
   \ 'link': 'some_bad_symbolic_links',
   \ }
@@ -258,8 +277,8 @@ autocmd FileType python setlocal sw=2 sts=2 noexpandtab
 autocmd FileType haskell call QuickFixHaskell()
 " When using ,b on normal mode, it will compile the
 " project
-nmap <LEADER>b :<C-u>make -j<CR>
-nmap <LEADER>B :<C-u>make clean && make -j<CR>
+nmap <LEADER>b :<C-u>AsyncMake -j<CR><CR>
+nmap <LEADER>B :<C-u>AsyncMake clean <bar> :<C-u>AsyncMake -j<CR><CR>
 
 " Close the QuickFix window just with the q
 au FileType qf nnoremap <buffer> q :<C-u>cclose<CR>
@@ -267,6 +286,7 @@ au FileType qf nnoremap <buffer> q :<C-u>cclose<CR>
 " After compiling, open the QuickFix window if there
 " is any error
 au QuickFixCmdPost make call OpenQuickFixBuffer()
+au QuickFixCmdPost AsyncMake call OpenQuickFixBuffer()
 
 " Column scroll-binding on <leader>sb
 noremap <silent> <leader>sb :<C-u>let @z=&so<CR>:set so=0 noscb<CR>:bo vs<CR>Ljzt:setl scb<CR><C-w>p:setl scb<CR>:let &so=@z<CR>
@@ -292,6 +312,19 @@ function! LastModified()
     call setpos('.', save_cursor)
   endif
 endfun
+
+function! NeatFoldText() "{{{2
+  let line = ' ' . substitute(getline(v:foldstart), '^\s*"\?\s*\|\s*"\?\s*{{' . '{\d*\s*', '', 'g') . ' '
+  let lines_count = v:foldend - v:foldstart + 1
+  let lines_count_text = '| ' . printf("%10s", lines_count . ' lines') . ' |'
+  let foldchar = split(filter(split(&fillchars, ','), 'v:val =~# "fold"')[0], ':')[-1]
+  let foldtextstart = strpart('+' . repeat(foldchar, v:foldlevel*2) . line, 0, (winwidth(0)*2)/3)
+  let foldtextend = lines_count_text . repeat(foldchar, 8)
+  let length = strlen(substitute(foldtextstart . foldtextend, '.', 'x', 'g'))
+  return foldtextstart . repeat(foldchar, winwidth(0)-length) . foldtextend
+endfunction
+set foldtext=NeatFoldText()
+" }}}2
 
 " This will set the variables that QuickFix needs
 " in order to compile, if you are on a project that
@@ -330,3 +363,33 @@ function! OpenQuickFixBuffer()
     cwindow
   endif
 endfunction
+
+function! s:ExecuteInShell(command, bang)
+  let _ = a:bang != '' ? s:_ : a:command == '' ? '' : join(map(split(a:command), 'expand(v:val)'))
+
+  if (_ != '')
+    let s:_ = _
+    let bufnr = bufnr('%')
+    let winnr = bufwinnr('^' . _ . '$')
+    silent! execute  winnr < 0 ? 'belowright new ' . fnameescape(_) : winnr . 'wincmd w'
+    setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile wrap number
+    silent! :%d
+    let message = 'Execute ' . _ . '...'
+    call append(0, message)
+    echo message
+    silent! 2d | resize 1 | redraw
+    silent! execute 'silent! %!'. _
+    silent! execute 'resize ' . line('$')
+    silent! execute 'syntax on'
+    silent! execute 'autocmd BufUnload <buffer> execute bufwinnr(' . bufnr . ') . ''wincmd w'''
+    silent! execute 'autocmd BufEnter <buffer> execute ''resize '' .  line(''$'')'
+    silent! execute 'nnoremap <silent> <buffer> <CR> :call <SID>ExecuteInShell(''' . _ . ''', '''')<CR>'
+    silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . _ . ''', '''')<CR>'
+    silent! execute 'nnoremap <silent> <buffer> <LocalLeader>g :execute bufwinnr(' . bufnr . ') . ''wincmd w''<CR>'
+    nnoremap <silent> <buffer> <C-W>_ :execute 'resize ' . line('$')<CR>
+    silent! syntax on
+  endif
+endfunction
+
+command! -complete=shellcmd -nargs=* -bang Shell call s:ExecuteInShell(<q-args>, '<bang>')
+cabbrev shell Shell
