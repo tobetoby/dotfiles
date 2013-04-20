@@ -33,25 +33,52 @@ call vundle#rc()
 Bundle 'gmarik/vundle'
 
 " github scripts
+Bundle 'MarcWeber/vim-addon-local-vimrc'
+
+Bundle 'kien/ctrlp.vim'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\.git$\|\.hg$\|\.svn$\|BoostBuild$',
+  \ 'file': '\.exe$\|\.so$\|\.dll$\|\.P$',
+  \ 'link': 'some_bad_symbolic_links',
+  \ }
+
+let g:ctrlp_max_height = 20
+" let g:ctrlp_extensions = ['tag']
+
+
+" list open buffers in a split
+Bundle 'fholgado/minibufexpl.vim'
+let g:miniBufExplorerMoreThanOne = 1 " next version: let g:miniBufExplBuffersNeeded = 1
+let g:miniBufExplForceSyntaxEnable = 1
+
+" load cscope and add some shortcuts
+Bundle 'brookhong/cscope.vim'
+
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-git'
 Bundle 'tpope/vim-repeat'
 Bundle 'tpope/vim-unimpaired'
-Bundle 'kien/ctrlp.vim'
-" Bundle 'Lokaltog/vim-powerline'
 Bundle 'Raimondi/delimitMate'
 Bundle 'Raimondi/YAIFA'
 Bundle 'sethwoodworth/vim-cute-python'
-Bundle 'Twinside/vim-haskellConceal'
-Bundle 'MarcWeber/vim-addon-local-vimrc'
+
+" show recent modifications in a tree
 Bundle 'sjl/gundo.vim'
+nnoremap <F5> :GundoToggle<CR>
+
 Bundle 'Shougo/vimproc'
 Bundle 'eagletmt/ghcmod-vim'
+Bundle 'Twinside/vim-haskellConceal'
 Bundle 'mileszs/ack.vim'
 Bundle 'godlygeek/tabular'
 Bundle 'Chiel92/vim-autoformat'
+
+" autoindent pasted text
 Bundle 'sickill/vim-pasta'
+
+" upgrade clearance
 Bundle 'chrisbra/SudoEdit.vim'
+
 if v:version > 703 || (v:version == 703 && has('patch584'))
   Bundle 'Valloric/YouCompleteMe'
   let g:ycm_confirm_extra_conf = 0
@@ -59,8 +86,7 @@ endif
 Bundle 'scrooloose/syntastic'
 Bundle 'pydave/AsyncCommand'
 
-" vim.org/scripts scripts
-Bundle 'autoload_cscope.vim'
+" Bundle 'autoload_cscope.vim'
 Bundle 'vimwiki'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -162,11 +188,6 @@ set listchars+=extends:❯ "〉
 set listchars+=precedes:❮
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => delimitMate configurations
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-au FileType c,perl let b:delimitMate_eol_marker = ';'
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Files, backups and undo
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " don't write backup files, they clutter your fs folders and
@@ -175,12 +196,29 @@ set nobackup
 set nowb
 set noswapfile
 
-nnoremap <F5> :GundoToggle<CR>
+"noremap  h
+"noremap <NL> j
+"noremap  k
+"noremap  l
 
-noremap  h
-noremap <NL> j
-noremap  k
-noremap  l
+" If you like control + vim direction key to navigate
+" windows then perform the remapping
+"
+noremap <C-J> <C-W>j
+noremap <C-K> <C-W>k
+noremap <C-H> <C-W>h
+noremap <C-L> <C-W>l
+
+" If you like <C-TAB> and <C-S-TAB> to switch buffers
+" in the current window then perform the remapping
+"
+noremap <C-TAB> :MBEbn<CR>
+noremap <C-S-TAB> :MBEbp<CR>
+"
+" Or, in MRU fashion
+"
+" noremap <C-TAB> :MBEbf<CR>
+" noremap <C-S-TAB> :MBEbb<CR>
 
 "noremap <C-[> : cs find s <C-R>=expand("<cword>")<CR><CR>
 noremap <leader>h : help <C-R>=expand("<cword>")<CR><CR><C-W>p
@@ -232,15 +270,6 @@ endfunction
 inoremap jk <ESC>
 inoremap kj <ESC>
 
-
-
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn$|\.BoostBuild$',
-  \ 'file': '\.exe$\|\.so$\|\.dll$\|\.P$',
-  \ 'link': 'some_bad_symbolic_links',
-  \ }
-
-" let g:ctrlp_extensions = ['tag']
 
 " nnoremap <C-L> :nohlsearch<CR><C-L>
 
