@@ -6,4 +6,4 @@ autocmd bufwritepost gvimrc source ~/.gvimrc
 "colorscheme molokai
 
 set t_vb=
-set lines=90 columns=160
+" set lines=90 columns=160

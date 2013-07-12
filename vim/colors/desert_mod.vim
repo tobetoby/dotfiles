@@ -21,7 +21,7 @@ if version > 580
 endif
 let g:colors_name="desert_mod"
 
-hi Normal	guifg=White guibg=grey20
+hi Normal	guifg=White guibg=grey15
 
 " highlight groups
 hi Cursor	guibg=khaki guifg=slategrey
