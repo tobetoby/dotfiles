@@ -80,6 +80,7 @@ Bundle 'sjl/gundo.vim'
 nnoremap <F5> :GundoToggle<CR>
 
 Bundle 'eagletmt/ghcmod-vim'
+Bundle 'vim-scripts/Superior-Haskell-Interaction-Mode-SHIM'
 Bundle 'Twinside/vim-haskellConceal'
 
 " run ack directly and put results in location list
@@ -140,7 +141,7 @@ set lazyredraw
 nmap <leader>w :w!<cr>
 
 " remove trailing whitespaces on save
-autocmd BufRead,BufWritePre * if ! &bin | silent! %s/\s\+$// | endif
+" autocmd BufRead,BufWritePre * if ! &bin | silent! %s/\s\+$// | endif
 
 " search from current directory upwards for ctags file
 set tags+=tags;/
@@ -161,8 +162,9 @@ syntax enable
 
 " set colors and font according to preferences
 colorscheme desert_mod
-set guifont=Anonymous\ Pro\ for\ Powerline\ 11
 " set guifont=Anonymous\ Pro\ 11
+" set guifont=Anonymous\ Pro\ for\ Powerline\ 11
+set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
 
 " Set 7 lines to the cursor - when moving vertically using j/k
 set so=7
@@ -297,6 +299,8 @@ call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
       \ '\.so$',
       \ '\.a$',
       \ '\.la$',
+      \ '\.hi$',
+      \ '\tags$',
       \ ], '\|'))
 
 " Map space to the prefix for Unite
@@ -371,7 +375,11 @@ let g:unite_cursor_line_highlight = 'TabLineSel'
 " let g:unite_abbr_highlight = 'TabLine'
 
 " For ack.
-if executable('ack-grep')
+if executable('ag')
+  let g:unite_source_grep_command = 'ag'
+  let g:unite_source_grep_default_opts = '--noheading --nocolor -a -w'
+  let g:unite_source_grep_recursive_opt = ''
+elseif executable('ack-grep')
   let g:unite_source_grep_command = 'ack-grep'
 " Match whole word only. This might/might not be a good idea
   let g:unite_source_grep_default_opts = '--no-heading --no-color -a -w'
@@ -484,6 +492,7 @@ let g:Powerline_symbols = 'fancy'
 filetype plugin indent on
 autocmd FileType python setlocal sw=2 sts=2 noexpandtab
 autocmd FileType haskell call QuickFixHaskell()
+autocmd BufWritePost *.hs GhcModCheckAndLintAsync
 
 " Close the QuickFix window just with the q
 au FileType qf nnoremap <buffer> q :<C-u>cclose<CR>
@@ -533,6 +542,13 @@ function! NeatFoldText() "{{{2
 endfunction
 set foldtext=NeatFoldText()
 " }}}2
+
+autocmd Filetype haskell nmap <leader>h :GhciRange<CR>
+autocmd Filetype haskell vmap <leader>h :GhciRange<CR>
+autocmd Filetype haskell nmap <leader>f :GhciFile<CR>
+autocmd Filetype haskell nmap <leader>r :GhciReload<CR>
+
+let g:ghcmod_ghc_options = ['-fglasgow-exts']
 
 " This will set the variables that QuickFix needs
 " in order to compile, if you are on a project that
