@@ -8,14 +8,60 @@ if has('vim_starting')
     " handwritten stuff is synchronized on git
     set runtimepath+=~/dotfiles/vim
     " NeoBundle, required
-    set runtimepath+=~/.vim/bundle/neobundle.vim/ 
+    set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
 
 call neobundle#rc(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-filetype plugin indent on
+filetype off
 NeoBundleCheck
+"}}}
+
+" => Load Plugins {{{
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+NeoBundle 'nelstrom/vim-visual-star-search'
+NeoBundle 'MarcWeber/vim-addon-local-vimrc'
+" vimproc {{{
+NeoBundle 'Shougo/vimproc.vim', {
+\ 'build': {
+    \ 'mac': 'make -f make_mac.mak',
+    \ 'unix': 'make -f make_unix.mak',
+    \ 'cygwin': 'make -f make_cygwin.mak',
+    \ 'windows': '"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\nmake.exe" make_msvc32.mak',
+  \ },
+\ } "}}}
+NeoBundle 'pydave/AsyncCommand'
+NeoBundle 'tpope/vim-dispatch'
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/unite-session'
+NeoBundle 'hrsh7th/vim-unite-vcs'
+NeoBundleLazy 'Shougo/unite-outline', {'autoload':{'unite_sources':'outline'}}
+NeoBundleLazy 'tsukkee/unite-tag', {'autoload':{'unite_sources':['tag','tag/file']}}
+NeoBundle 'hrsh7th/vim-versions'
+NeoBundle 'mhinz/vim-signify'
+NeoBundle 'bling/vim-airline'
+NeoBundle 'tpope/vim-repeat'
+NeoBundle 'Raimondi/delimitMate'
+NeoBundle 'Chiel92/vim-autoformat'
+NeoBundle 'junegunn/vim-easy-align'
+NeoBundle 'kana/vim-textobj-user'
+NeoBundle 'kana/vim-textobj-function'
+NeoBundle 'coderifous/textobj-word-column.vim'
+NeoBundle 'SirVer/ultisnips'
+NeoBundle 'Valloric/YouCompleteMe', { 'vim_version':'7.3.584'}
+NeoBundleLazy 'scrooloose/syntastic', {'autoload' : {'filetypes' : ['python', 'javascript', 'c', 'c++'] } }
+NeoBundle 'sjl/gundo.vim'
+NeoBundleLazy 'sethwoodworth/vim-cute-python', {'autoload' : {'filetypes' : ['python'] } }
+NeoBundleLazy 'Twinside/vim-haskellConceal', {'autoload' : {'filetypes' : ['haskell'] } }
+NeoBundleLazy 'eagletmt/ghcmod-vim', {'autoload' : {'filetypes' : ['haskell'] } }
+NeoBundle 'vim-scripts/Boost-Build-v2-BBv2-syntax'
+NeoBundle 'sickill/vim-pasta'
+NeoBundle 'chrisbra/SudoEdit.vim'
+NeoBundle 'chrisbra/NrrwRgn'
+NeoBundle 'vimwiki'
+
+filetype plugin indent on     " required!
 "}}}
 
 " => General {{{
@@ -123,8 +169,6 @@ elseif executable('ack-grep')
   set grepformat=%f:%l:%c:%m
 endif
 
-" use # and * from visual selection
-NeoBundle 'nelstrom/vim-visual-star-search'
 " enable auto indentation and set tab width
 
 set smartindent
@@ -349,31 +393,12 @@ cnoremap <c-v> <c-r>"
 
 " => Plugins section starts here {{{
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" to allow project specific settings
-NeoBundle 'MarcWeber/vim-addon-local-vimrc'
-
-" vimproc.vim "{{{
-NeoBundle 'Shougo/vimproc.vim', {
-    \ 'build': {
-        \ 'mac': 'make -f make_mac.mak',
-        \ 'unix': 'make -f make_unix.mak',
-        \ 'cygwin': 'make -f make_cygwin.mak',
-        \ 'windows': '"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\nmake.exe" make_msvc32.mak',
-      \ },
-    \ } "}}}
-
-NeoBundle 'pydave/AsyncCommand'
-
 NeoBundle 'tpope/vim-dispatch' "{{{
 " When using ,b on normal mode, it will compile the project
 nmap <LEADER>b :Make! -j<CR>
 nmap <LEADER>B :Make! clean <bar> :Make! -j<CR> "}}}
 
 " => Unite {{{2
-NeoBundle 'Shougo/unite.vim'
-NeoBundle 'Shougo/unite-session'
-NeoBundle 'hrsh7th/vim-unite-vcs'
-
 " Use the fuzzy matcher for everything
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 
@@ -462,7 +487,6 @@ nnoremap <silent> [unite]c :<C-u>Unite -buffer-name=commands command<CR>
 nnoremap <silent> [unite]b :<C-u>Unite -buffer-name=bookmarks bookmark<CR>
 
 " Quick vcs
-NeoBundle 'hrsh7th/vim-versions'
 nnoremap <silent> [unite]v :<C-u>Unite -buffer-name=vcslog vcs/log<CR>
 
 nnoremap <C-p> :Unite file_rec/async<cr>
@@ -493,9 +517,7 @@ elseif executable('ack')
 endif
 "}}}2
 
-NeoBundle 'mhinz/vim-signify' " VCS annotations in the sign column
-
-NeoBundle 'bling/vim-airline' "{{{
+" NeoBundle 'bling/vim-airline' "{{{
 " when only one tab is open, show all of the open buffers
 " let g:airline#extensions#tabline#enabled = 1
 " user powerline patched fonts
@@ -506,60 +528,65 @@ let g:airline_symbols.brach = '⎇'
 let g:airline_symbols.paste = 'ρ'
 let g:airline_symbols.whitespace = 'Ξ' "}}}
 
-" get some plugins to play with '.'
-NeoBundle 'tpope/vim-repeat'
-
-NeoBundle 'Raimondi/delimitMate'
-" NeoBundle 'kana/vim-smartinput'
-
-NeoBundle 'Chiel92/vim-autoformat'
-nnoremap <F3> :Autoformat<CR><CR>
-
-NeoBundle 'junegunn/vim-easy-align' "{{{
+" NeoBundle 'junegunn/vim-easy-align' "{{{
 vnoremap <Enter> <Plug>(EasyAlign)
 nnoremap <Leader>a <Plug>(EasyAlign) "}}}
 
-" textobj and definitions {{{
-NeoBundle 'kana/vim-textobj-user'
-NeoBundle 'kana/vim-textobj-function'
-NeoBundle 'coderifous/textobj-word-column.vim' "}}}
+" NeoBundle 'SirVer/ultisnips' "{{{
+    "let g:UltiSnipsExpandTrigger="<TAB>"
+    "let g:UltiSnipsJumpForwardTrigger="<TAB>"
+    "let g:UltiSnipsJumpBackwardTrigger="<s-TAB>"
+    "let g:UltiSnipsSnippetsDir='~/.vim/snippets'
 
-NeoBundle 'Valloric/YouCompleteMe', { 'vim_version':'7.3.584'} "{{{
+    function! g:UltiSnips_Complete()
+        call UltiSnips_ExpandSnippet()
+        if g:ulti_expand_res == 0
+            if pumvisible()
+                return "\<C-n>"
+            else
+                call UltiSnips_JumpForwards()
+                if g:ulti_jump_forwards_res == 0
+                   return "\<TAB>"
+                endif
+            endif
+        endif
+        return ""
+    endfunction
+
+    au BufEnter * exec "inoremap <silent> " . g:UltiSnipsExpandTrigger . " <C-R>=g:UltiSnips_Complete()<cr>"
+    let g:UltiSnipsJumpForwardTrigger="<tab>"
+    let g:UltiSnipsListSnippets="<c-e>"
+"}}}
+
+" NeoBundle 'Valloric/YouCompleteMe', { 'vim_version':'7.3.584'} "{{{
     let g:ycm_confirm_extra_conf = 0
     let g:ycm_allow_changing_updatetime = 0
     let g:ycm_complete_in_comments_and_strings=1
-    let g:ycm_key_list_select_completion=['<C-n>', '<Down>']
-    let g:ycm_key_list_previous_completion=['<C-p>', '<Up>']
+    "let g:ycm_key_list_select_completion=['<C-n>', '<Down>']
+    "let g:ycm_key_list_previous_completion=['<C-p>', '<Up>']
     let g:ycm_filetype_blacklist={'unite': 1}
     let g:ycm_autoclose_preview_window_after_completion = 1
-    let g:ycm_key_invoke_completion = '<C-TAB>' "}}}
+    "let g:ycm_key_invoke_completion = '<C-TAB>' "}}}
 
-NeoBundle 'SirVer/ultisnips' "{{{
-    let g:UltiSnipsExpandTrigger="<TAB>"
-    let g:UltiSnipsJumpForwardTrigger="<TAB>"
-    let g:UltiSnipsJumpBackwardTrigger="<s-TAB>"
-    "let g:UltiSnipsSnippetsDir='~/.vim/snippets'
-"}}}
-
-NeoBundleLazy 'scrooloose/syntastic', {'autoload' : {'filetypes' : ['python', 'javascript', 'c', 'c++'] } } "{{{
+" NeoBundleLazy 'scrooloose/syntastic', {'autoload' : {'filetypes' : ['python', 'javascript', 'c', 'c++'] } } "{{{
 let g:syntastic_error_symbol='⧰'
 let g:syntastic_warning_symbol='⚠'
 let g:syntastic_auto_jump=0 " Do not jump to first error on save/open
 let g:syntastic_stl_format = '[%E{⧰: #%e l%fe}%B{, }%W{⚠: #%w %fw}]' "}}}
 
-NeoBundle 'sjl/gundo.vim' "{{{
+" NeoBundle 'sjl/gundo.vim' "{{{
 nnoremap <F5> :GundoToggle<CR> "}}}
 "}}}
 
 " => filetype specific stuff {{{
 " -> Python {{{
-NeoBundleLazy 'sethwoodworth/vim-cute-python', {'autoload' : {'filetypes' : ['python'] } }
+" NeoBundleLazy 'sethwoodworth/vim-cute-python', {'autoload' : {'filetypes' : ['python'] } }
 "}}}
 
 " -> Haskell {{{
 " NeoBundleLazy 'vim-scripts/Superior-Haskell-Interaction-Mode-SHIM', {'autoload' : {'filetypes' : ['haskell'] } }
-NeoBundleLazy 'Twinside/vim-haskellConceal', {'autoload' : {'filetypes' : ['haskell'] } }
-NeoBundleLazy 'eagletmt/ghcmod-vim', {'autoload' : {'filetypes' : ['haskell'] } }
+" NeoBundleLazy 'Twinside/vim-haskellConceal', {'autoload' : {'filetypes' : ['haskell'] } }
+" NeoBundleLazy 'eagletmt/ghcmod-vim', {'autoload' : {'filetypes' : ['haskell'] } }
 let g:ghcmod_ghc_options = ['-fglasgow-exts']
 
 " This will set the variables that QuickFix needs
@@ -590,22 +617,6 @@ function! QuickFixHaskell()
 endfunction
 "}}}
 
-NeoBundle 'vim-scripts/Boost-Build-v2-BBv2-syntax'
-
 " Bundle 'vim-scripts/bufkill.vim'
 
-" autoindent pasted text
-NeoBundle 'sickill/vim-pasta'
-" example for disabling on specific filetypes (this is the default)
-"let g:pasta_disabled_filetypes = ['python', 'coffee', 'yaml', 'markdown', 'slim']
-
-NeoBundle 'chrisbra/SudoEdit.vim'
-" use :W to escalate permissions
-command SudoWrite W
-
-" copy a region of a buffer into a new split
-NeoBundle 'chrisbra/NrrwRgn'
-
-" Bundle 'autoload_cscope.vim'
-NeoBundle 'vimwiki'
 " }}}
