@@ -35,6 +35,7 @@ NeoBundle 'pydave/AsyncCommand'
 NeoBundle 'tpope/vim-dispatch'
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/unite-session'
+NeoBundle 'Shougo/neomru.vim'
 NeoBundle 'hrsh7th/vim-unite-vcs'
 NeoBundleLazy 'Shougo/unite-outline', {'autoload':{'unite_sources':'outline'}}
 NeoBundleLazy 'tsukkee/unite-tag', {'autoload':{'unite_sources':['tag','tag/file']}}
@@ -45,10 +46,13 @@ NeoBundle 'tpope/vim-repeat'
 NeoBundle 'Raimondi/delimitMate'
 NeoBundle 'Chiel92/vim-autoformat'
 NeoBundle 'junegunn/vim-easy-align'
+NeoBundle 'tommcdo/vim-exchange'
 NeoBundle 'kana/vim-textobj-user'
 NeoBundle 'kana/vim-textobj-function'
+NeoBundle 'wellle/targets.vim'
 NeoBundle 'coderifous/textobj-word-column.vim'
 NeoBundle 'SirVer/ultisnips'
+NeoBundle 'honza/vim-snippets'
 NeoBundle 'Valloric/YouCompleteMe', { 'vim_version':'7.3.584'}
 NeoBundleLazy 'scrooloose/syntastic', {'autoload' : {'filetypes' : ['python', 'javascript', 'c', 'c++'] } }
 NeoBundle 'sjl/gundo.vim'
@@ -159,7 +163,7 @@ set hlsearch
 set incsearch
 
 if executable('ag')
-  set grepprg=ag\ --nogroup\ --column\ --smart-case\ --nocolor\ --follow
+  set grepprg=ag\ --nogroup\ --column\ --smart-case\ --nocolor\ --follow\ --ignore\ tags
   set grepformat=%f:%l:%c:%m
 elseif executable('ack')
   set grepprg=ack\ --nogroup\ --column\ --smart-case\ --nocolor\ --follow\ $*
@@ -398,7 +402,11 @@ NeoBundle 'tpope/vim-dispatch' "{{{
 nmap <LEADER>b :Make! -j<CR>
 nmap <LEADER>B :Make! clean <bar> :Make! -j<CR> "}}}
 
-" => Unite {{{2
+" -> delimitMate {{{
+    let g:delimitMate_smart_quotes = 1
+"}}}
+
+" -> Unite {{{2
 " Use the fuzzy matcher for everything
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 
@@ -412,7 +420,7 @@ call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
       \ '\.svn/',
       \ '\.hg/',
       \ 'build/',
-      \ 'Boost.*/',
+      \ 'BoostBuild/',
       \ '\.o$',
       \ '\.so$',
       \ '\.a$',
@@ -489,9 +497,11 @@ nnoremap <silent> [unite]b :<C-u>Unite -buffer-name=bookmarks bookmark<CR>
 " Quick vcs
 nnoremap <silent> [unite]v :<C-u>Unite -buffer-name=vcslog vcs/log<CR>
 
+" Quick buffer change
+nnoremap <silent> [unite]s :<C-u>Unite -quick-match buffer<CR>
+
 nnoremap <C-p> :Unite file_rec/async<cr>
 nnoremap <space>/ :Unite grep:.<cr>
-nnoremap <space>s :Unite -quick-match buffer<cr>
 let g:unite_enable_start_insert = 1
 let g:unite_split_rule = "botright"
 let g:unite_data_directory = '~/.vim/tmp/unite'
@@ -503,7 +513,7 @@ let g:unite_cursor_line_highlight = 'TabLineSel'
 " For ack.
 if executable('ag')
   let g:unite_source_grep_command = 'ag'
-  let g:unite_source_grep_default_opts = '--noheading --nocolor -a -w'
+  let g:unite_source_grep_default_opts = '--ignore tags --noheading --nocolor -a -w'
   let g:unite_source_grep_recursive_opt = ''
 elseif executable('ack-grep')
   let g:unite_source_grep_command = 'ack-grep'
@@ -539,7 +549,7 @@ nnoremap <Leader>a <Plug>(EasyAlign) "}}}
     "let g:UltiSnipsSnippetsDir='~/.vim/snippets'
 
     function! g:UltiSnips_Complete()
-        call UltiSnips_ExpandSnippet()
+        call UltiSnips#ExpandSnippet()
         if g:ulti_expand_res == 0
             if pumvisible()
                 return "\<C-n>"
@@ -576,6 +586,12 @@ let g:syntastic_stl_format = '[%E{⧰: #%e l%fe}%B{, }%W{⚠: #%w %fw}]' "}}}
 
 " NeoBundle 'sjl/gundo.vim' "{{{
 nnoremap <F5> :GundoToggle<CR> "}}}
+
+" NeoBundle 'junegunn/vim-easy-align' "{{{
+    " Start interactive EasyAlign in visual mode
+    vmap <Enter> <Plug>(EasyAlign)
+    " Start interactive EasyAlign with a Vim movement
+    nmap <Leader>a <Plug>(EasyAlign) "}}}
 "}}}
 
 " => filetype specific stuff {{{
