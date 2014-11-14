@@ -11,7 +11,7 @@ if has('vim_starting')
     set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
 
-call neobundle#rc(expand('~/.vim/bundle/'))
+call neobundle#begin(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 
 filetype off
@@ -21,7 +21,7 @@ NeoBundleCheck
 " => Load Plugins {{{
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 NeoBundle 'nelstrom/vim-visual-star-search'
-NeoBundle 'MarcWeber/vim-addon-local-vimrc'
+"NeoBundle 'MarcWeber/vim-addon-local-vimrc'
 " vimproc {{{
 NeoBundle 'Shougo/vimproc.vim', {
 \ 'build': {
@@ -40,7 +40,6 @@ NeoBundle 'hrsh7th/vim-unite-vcs'
 NeoBundleLazy 'Shougo/unite-outline', {'autoload':{'unite_sources':'outline'}}
 NeoBundleLazy 'tsukkee/unite-tag', {'autoload':{'unite_sources':['tag','tag/file']}}
 NeoBundle 'hrsh7th/vim-versions'
-NeoBundle 'mhinz/vim-signify'
 NeoBundle 'bling/vim-airline'
 NeoBundle 'tpope/vim-repeat'
 NeoBundle 'Raimondi/delimitMate'
@@ -55,15 +54,21 @@ NeoBundle 'SirVer/ultisnips'
 NeoBundle 'honza/vim-snippets'
 NeoBundle 'Valloric/YouCompleteMe', { 'vim_version':'7.3.584'}
 NeoBundleLazy 'scrooloose/syntastic', {'autoload' : {'filetypes' : ['python', 'javascript', 'c', 'c++'] } }
+NeoBundle 'mhinz/vim-signify'
 NeoBundle 'sjl/gundo.vim'
 NeoBundleLazy 'sethwoodworth/vim-cute-python', {'autoload' : {'filetypes' : ['python'] } }
 NeoBundleLazy 'Twinside/vim-haskellConceal', {'autoload' : {'filetypes' : ['haskell'] } }
 NeoBundleLazy 'eagletmt/ghcmod-vim', {'autoload' : {'filetypes' : ['haskell'] } }
+NeoBundleLazy 'zah/nimrod.vim', {'autoload' : {'filetypes' : ['nim'] } }
 NeoBundle 'vim-scripts/Boost-Build-v2-BBv2-syntax'
 NeoBundle 'sickill/vim-pasta'
 NeoBundle 'chrisbra/SudoEdit.vim'
 NeoBundle 'chrisbra/NrrwRgn'
 NeoBundle 'vimwiki'
+NeoBundle 'http://lh-vim.googlecode.com/svn/vim-lib/trunk', {'name': 'lh-vim-lib'}
+NeoBundle 'LucHermitte/local_vimrc', {'depends': 'lh-vim-lib'}
+
+call neobundle#end()
 
 filetype plugin indent on     " required!
 "}}}
@@ -123,7 +128,7 @@ syntax enable
 colorscheme desert
 " set guifont=Anonymous\ Pro\ 11
 " set guifont=Anonymous\ Pro\ for\ Powerline\ 11
-set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
+set guifont=DejaVu\ Sans\ Mono\ 11
 
 " Set 7 lines to the cursor - when moving vertically using j/k
 set so=7
@@ -174,13 +179,17 @@ elseif executable('ack-grep')
 endif
 
 " enable auto indentation and set tab width
-
 set smartindent
 set shiftwidth=4
 set softtabstop=4
 set tabstop=4
+
 " always convert tabs to spaces
 set expandtab
+
+" wrap lines to indentation
+"set breakindent
+"set breakindentopt=shift:-1
 
 " set \m to default for regexes
 " set magic " this is the default
@@ -397,7 +406,7 @@ cnoremap <c-v> <c-r>"
 
 " => Plugins section starts here {{{
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-NeoBundle 'tpope/vim-dispatch' "{{{
+" -> vim-dispatch {{{
 " When using ,b on normal mode, it will compile the project
 nmap <LEADER>b :Make! -j<CR>
 nmap <LEADER>B :Make! clean <bar> :Make! -j<CR> "}}}
@@ -414,7 +423,7 @@ call unite#filters#matcher_default#use(['matcher_fuzzy'])
 call unite#filters#sorter_default#use(['sorter_rank'])
 
 " Set up some custom ignores
-call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
+call unite#custom#source('file_rec,file_rec/async,file_mru,file,buffer,grep',
       \ 'ignore_pattern', join([
       \ '\.git/',
       \ '\.svn/',
@@ -447,9 +456,7 @@ nnoremap <silent> [unite]u :<C-u>Unite -buffer-name=buffers buffer file_mru<CR>
 nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<CR>
 
 " Quick outline
-NeoBundleLazy 'Shougo/unite-outline', {'autoload':{'unite_sources':'outline'}} "{{{
-    nnoremap <silent> [unite]o :<C-u>Unite -vertical -buffer-name=outline outline<cr>
-"}}}
+nnoremap <silent> [unite]o :<C-u>Unite -vertical -buffer-name=outline outline<cr>
 
 " Quick sessions (projects)
 nnoremap <silent> [unite]p :<C-u>Unite -buffer-name=sessions session<CR>
@@ -472,10 +479,8 @@ nnoremap <silent> [unite]g :<C-u>Unite -buffer-name=grep grep:.<CR>
 " Grep for word under cursor
 nnoremap <silent> [unite]; :<C-u>UniteWithCursorWord -buffer-name=grep grep<CR>
 
-NeoBundleLazy 'tsukkee/unite-tag', {'autoload':{'unite_sources':['tag','tag/file']}} "{{{
-    nnoremap <silent> [unite]t :<C-u>Unite -auto-resize -buffer-name=tag tag tag/file<cr>
-"}}}
-"
+nnoremap <silent> [unite]t :<C-u>Unite -auto-resize -buffer-name=tag tag tag/file<cr>
+
 " Quick help
 nnoremap <silent> [unite]h :<C-u>Unite -buffer-name=help help<CR>
 
@@ -501,7 +506,6 @@ nnoremap <silent> [unite]v :<C-u>Unite -buffer-name=vcslog vcs/log<CR>
 nnoremap <silent> [unite]s :<C-u>Unite -quick-match buffer<CR>
 
 nnoremap <C-p> :Unite file_rec/async<cr>
-nnoremap <space>/ :Unite grep:.<cr>
 let g:unite_enable_start_insert = 1
 let g:unite_split_rule = "botright"
 let g:unite_data_directory = '~/.vim/tmp/unite'
@@ -513,18 +517,23 @@ let g:unite_cursor_line_highlight = 'TabLineSel'
 " For ack.
 if executable('ag')
   let g:unite_source_grep_command = 'ag'
-  let g:unite_source_grep_default_opts = '--ignore tags --noheading --nocolor -a -w'
+  let g:unite_source_grep_default_opts = '--noheading --nocolor --smart-case'
   let g:unite_source_grep_recursive_opt = ''
 elseif executable('ack-grep')
   let g:unite_source_grep_command = 'ack-grep'
 " Match whole word only. This might/might not be a good idea
-  let g:unite_source_grep_default_opts = '--no-heading --no-color -a -w'
+  let g:unite_source_grep_default_opts = '--no-heading --no-color -w'
   let g:unite_source_grep_recursive_opt = ''
 elseif executable('ack')
   let g:unite_source_grep_command = 'ack'
-  let g:unite_source_grep_default_opts = '--no-heading --no-color -a -w'
+  let g:unite_source_grep_default_opts = '--no-heading --no-color -w'
   let g:unite_source_grep_recursive_opt = ''
 endif
+
+nnoremap <silent> [unite]/ :<C-u>Unite -buffer-name=ag grep:.<cr>
+
+nnoremap <silent> [unite], :<C-u>UnitePrevious<cr>
+nnoremap <silent> [unite]. :<C-u>UniteNext<cr>
 "}}}2
 
 " NeoBundle 'bling/vim-airline' "{{{
@@ -584,6 +593,10 @@ let g:syntastic_warning_symbol='⚠'
 let g:syntastic_auto_jump=0 " Do not jump to first error on save/open
 let g:syntastic_stl_format = '[%E{⧰: #%e l%fe}%B{, }%W{⚠: #%w %fw}]' "}}}
 
+
+" NeoBundle 'mhinz/vim-signify' "{{{
+let g:signify_sign_overwrite=0 "}}}
+
 " NeoBundle 'sjl/gundo.vim' "{{{
 nnoremap <F5> :GundoToggle<CR> "}}}
 
@@ -592,6 +605,10 @@ nnoremap <F5> :GundoToggle<CR> "}}}
     vmap <Enter> <Plug>(EasyAlign)
     " Start interactive EasyAlign with a Vim movement
     nmap <Leader>a <Plug>(EasyAlign) "}}}
+
+" NeoBundle 'LucHermitte/local_vimrc' "{{{
+let g:local_vimrc="vimrc.local" "}}}
+
 "}}}
 
 " => filetype specific stuff {{{

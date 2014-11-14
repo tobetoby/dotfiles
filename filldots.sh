@@ -5,6 +5,7 @@ dotdir="$HOME/dotfiles"
 dotfiles=(
   vimrc
   gvimrc
+  agignore
 )
 
 for df in ${dotfiles[@]}; do
