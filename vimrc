@@ -20,6 +20,8 @@ NeoBundleCheck
 
 " => Load Plugins {{{
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+NeoBundle 'http://lh-vim.googlecode.com/svn/vim-lib/trunk', {'name': 'lh-vim-lib'}
+NeoBundle 'LucHermitte/local_vimrc', {'depends': 'lh-vim-lib'}
 NeoBundle 'nelstrom/vim-visual-star-search'
 "NeoBundle 'MarcWeber/vim-addon-local-vimrc'
 " vimproc {{{
@@ -39,17 +41,22 @@ NeoBundle 'Shougo/neomru.vim'
 NeoBundle 'hrsh7th/vim-unite-vcs'
 NeoBundleLazy 'Shougo/unite-outline', {'autoload':{'unite_sources':'outline'}}
 NeoBundleLazy 'tsukkee/unite-tag', {'autoload':{'unite_sources':['tag','tag/file']}}
+NeoBundleLazy 'ujihisa/unite-haskellimport', {'autoload':{'unite_sources':'haskellimport'}}
 NeoBundle 'hrsh7th/vim-versions'
 NeoBundle 'bling/vim-airline'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'tpope/vim-speeddating'
 NeoBundle 'tpope/vim-repeat'
 NeoBundle 'Raimondi/delimitMate'
 NeoBundle 'Chiel92/vim-autoformat'
+NeoBundle 'vim-scripts/vcscommand.vim'
 NeoBundle 'junegunn/vim-easy-align'
 NeoBundle 'tommcdo/vim-exchange'
 NeoBundle 'kana/vim-textobj-user'
 NeoBundle 'kana/vim-textobj-function'
-NeoBundle 'wellle/targets.vim'
+NeoBundle 'Julian/vim-textobj-variable-segment'
 NeoBundle 'coderifous/textobj-word-column.vim'
+NeoBundle 'wellle/targets.vim'
 NeoBundle 'SirVer/ultisnips'
 NeoBundle 'honza/vim-snippets'
 NeoBundle 'Valloric/YouCompleteMe', { 'vim_version':'7.3.584'}
@@ -57,16 +64,17 @@ NeoBundleLazy 'scrooloose/syntastic', {'autoload' : {'filetypes' : ['python', 'j
 NeoBundle 'mhinz/vim-signify'
 NeoBundle 'sjl/gundo.vim'
 NeoBundleLazy 'sethwoodworth/vim-cute-python', {'autoload' : {'filetypes' : ['python'] } }
-NeoBundleLazy 'Twinside/vim-haskellConceal', {'autoload' : {'filetypes' : ['haskell'] } }
+"NeoBundleLazy 'Twinside/vim-haskellConceal', {'autoload' : {'filetypes' : ['haskell'] } }
 NeoBundleLazy 'eagletmt/ghcmod-vim', {'autoload' : {'filetypes' : ['haskell'] } }
 NeoBundleLazy 'zah/nimrod.vim', {'autoload' : {'filetypes' : ['nim'] } }
 NeoBundle 'vim-scripts/Boost-Build-v2-BBv2-syntax'
 NeoBundle 'sickill/vim-pasta'
+NeoBundle 'jpalardy/vim-slime'
+"NeoBundle 'nathanaelkane/vim-indent-guides'
+NeoBundle 'Yggdroot/indentLine'
 NeoBundle 'chrisbra/SudoEdit.vim'
 NeoBundle 'chrisbra/NrrwRgn'
 NeoBundle 'vimwiki'
-NeoBundle 'http://lh-vim.googlecode.com/svn/vim-lib/trunk', {'name': 'lh-vim-lib'}
-NeoBundle 'LucHermitte/local_vimrc', {'depends': 'lh-vim-lib'}
 
 call neobundle#end()
 
@@ -116,6 +124,8 @@ set backup
 set backupdir=~/.vim/tmp/backup
 
 set noswapfile
+
+au BufEnter * let g:bufcwd = getcwd()
 "}}}
 
 " => VIM user interface {{{
@@ -413,6 +423,7 @@ nmap <LEADER>B :Make! clean <bar> :Make! -j<CR> "}}}
 
 " -> delimitMate {{{
     let g:delimitMate_smart_quotes = 1
+    let g:delimitMate_excluded_ft = 'unite'
 "}}}
 
 " -> Unite {{{2
@@ -585,13 +596,18 @@ nnoremap <Leader>a <Plug>(EasyAlign) "}}}
     "let g:ycm_key_list_previous_completion=['<C-p>', '<Up>']
     let g:ycm_filetype_blacklist={'unite': 1}
     let g:ycm_autoclose_preview_window_after_completion = 1
+    let g:ycm_collect_identifiers_from_tags_files = 1
+    au BufEnter * let g:ycm_extra_conf_vim_data = ['g:bufcwd']
+    nnoremap <leader>m :YcmCompleter GoToImprecise<CR>
     "let g:ycm_key_invoke_completion = '<C-TAB>' "}}}
 
 " NeoBundleLazy 'scrooloose/syntastic', {'autoload' : {'filetypes' : ['python', 'javascript', 'c', 'c++'] } } "{{{
 let g:syntastic_error_symbol='⧰'
 let g:syntastic_warning_symbol='⚠'
 let g:syntastic_auto_jump=0 " Do not jump to first error on save/open
-let g:syntastic_stl_format = '[%E{⧰: #%e l%fe}%B{, }%W{⚠: #%w %fw}]' "}}}
+let g:syntastic_stl_format = '[%E{⧰: #%e l%fe}%B{, }%W{⚠: #%w %fw}]'
+let g:syntastic_r_lint_styles = 'list(spacing.indentation.notabs, spacing.indentation.evenindent)'
+"}}}
 
 
 " NeoBundle 'mhinz/vim-signify' "{{{
@@ -609,11 +625,33 @@ nnoremap <F5> :GundoToggle<CR> "}}}
 " NeoBundle 'LucHermitte/local_vimrc' "{{{
 let g:local_vimrc="vimrc.local" "}}}
 
-"}}}
+" NeoBundle 'nathanaelkane/vim-indent-guides' "{{{
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_start_level = 2
+let g:indent_guides_guide_size = 1 "}}}
+
+" NeoBundle 'jpalardy/vim-slime' "{{{
+let g:slime_target = "tmux"
+
+" }}}
 
 " => filetype specific stuff {{{
 " -> Python {{{
 " NeoBundleLazy 'sethwoodworth/vim-cute-python', {'autoload' : {'filetypes' : ['python'] } }
+"}}}
+
+" -> Nim {{{
+fun! JumpToDef()
+  if exists("*GotoDefinition_" . &filetype)
+    call GotoDefinition_{&filetype}()
+  else
+    exe "norm! \<C-]>"
+  endif
+endf
+
+" Jump to tag
+"nnoremap <M-g> :call JumpToDef()<cr>
+"inoremap <M-g> <esc>:call JumpToDef()<cr>i
 "}}}
 
 " -> Haskell {{{
@@ -653,3 +691,4 @@ endfunction
 " Bundle 'vim-scripts/bufkill.vim'
 
 " }}}
+
